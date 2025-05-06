@@ -71,11 +71,8 @@ describe("AbonamentNFT", function () {
   });
 
   it("supports the ERC-721, Metadata and Enumerable interfaces", async () => {
-    // ERC-721
     expect(await nft.supportsInterface("0x80ac58cd")).to.be.true;
-    // ERC-721 Metadata
     expect(await nft.supportsInterface("0x5b5e139f")).to.be.true;
-    // ERC-721 Enumerable
     expect(await nft.supportsInterface("0x780e9d63")).to.be.true;
   });
 
@@ -90,6 +87,7 @@ describe("AbonamentNFT", function () {
       nft.connect(other).refundTransfer(other.address, owner.address, 1)
     ).to.be.revertedWith("Neautorizat");
   });
+
 });
 
 

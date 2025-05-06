@@ -89,11 +89,15 @@ describe("PlanAbonament", function () {
     expect(balAfter).to.be.closeTo(balBefore + price - BigInt(gasCost), 10n ** 15n);
 });
 
-  it("reverts refund when not cancelled", async function () {
+  it("reverts refund when not cancelled then processes refunds when cancelled", async function () {
     await plan.connect(subscriber).cumparaSubscriptie({ value: price });
     await expect(
       plan.connect(subscriber).refundSubscriptie(1)
     ).to.be.revertedWith("Plan is not cancelled");
+    await plan.connect(owner).cancelPlan();
+    await expect(
+      plan.connect(subscriber).refundSubscriptie(1)
+    ).to.emit(plan, 'RefundRequested');
   });
 
   it("returns its ERC-721Receiver selector", async () => {
@@ -118,5 +122,23 @@ describe("PlanAbonament", function () {
       .withArgs(subscriber.address, owner.address, 1);
 
     expect(await NFT.ownerOf(1)).to.equal(owner.address);
+  });
+
+  describe("Calculate discount", function () {
+  
+    it("apply 5% discount for quantitiy < 10", async () => {
+      const net = await plan.calculeazaDiscount(ethers.parseEther("2"), 5);
+      expect(net).to.equal(ethers.parseEther("9.5"));
+    });
+  
+    it("apply 10% discount for quantity <=50 and eth >=1", async () => {
+      const net = await plan.calculeazaDiscount(ethers.parseEther("2"), 20);
+      expect(net).to.equal(ethers.parseEther("36"));
+    });
+  
+    it("apply 15% for other cases", async () => {
+      const net = await plan.calculeazaDiscount(ethers.parseEther("0.5"), 100);
+      expect(net).to.equal(ethers.parseEther("42.5")); 
+    });
   });
 });

@@ -40,5 +40,7 @@ describe("RetailerFactory", function () {
       expect(await plan.retailer()).to.equal("R");
       expect(await factory.nextPlanId()).to.equal(1);
     });
+
+    
   });
   

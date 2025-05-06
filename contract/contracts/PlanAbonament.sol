@@ -84,6 +84,26 @@ contract PlanAbonament is Ownable, IERC721Receiver, ReentrancyGuard {
         (bool success, ) = msg.sender.call{value: amount}("");
         require(success, "Transfer failed");
     }
+        function calculeazaDiscount(
+        uint256 valoare,
+        uint256 cantitate
+    ) public pure returns (uint256) {
+        uint256 discount;
+        if (cantitate < 10) {
+            discount = (valoare * 5) / 100;
+        }
+        else if (cantitate <= 50 && valoare > 1 ether) {
+            discount = (valoare * 10) / 100;
+        } else {
+            discount = (valoare * 15) / 100;
+        }
+        uint256 total = valoare * cantitate;
+        uint256 rezultat = total;
+        for (uint256 i = 0; i < cantitate; i++) {
+            rezultat -= discount;
+        }
+        return rezultat;
+    }
     function testCallRefund(
         address nft,
         address from,
