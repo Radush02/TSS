@@ -31,4 +31,4 @@ jobs:
       - name: Rulare
         run: |
           cd contract
-          npx hardhat test
+          npx hardhat coverage

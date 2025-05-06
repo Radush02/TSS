@@ -13,12 +13,13 @@
   "type": "commonjs",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
-    "hardhat": "^2.22.18"
+    "hardhat": "^2.23.0"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^5.2.0",
+    "@openzeppelin/contracts": "^5.3.0",
     "@types/react-router-dom": "^5.3.3",
     "ethers": "^6.13.5",
-    "react-router-dom": "^7.2.0"
+    "react-router-dom": "^7.2.0",
+    "solidity-coverage": "^0.8.15"
   }
 }
