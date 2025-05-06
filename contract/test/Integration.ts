@@ -65,39 +65,58 @@ describe("Integration and Property-based Tests for Subscription Contracts", func
     expect(total).to.equal(BigInt(initialSupply));
   });
 
-  describe("Property-based Fuzz Tests for Subscription Durations and Prices", function () {
-    it("random valid subscriptions should always succeed or revert cleanly", async function () {
-      await fc.assert(
-        fc.asyncProperty(
-          fc.integer({ min: 1, max: 365 }),
-          fc.double({ min: 0.01, max: 10, noNaN: true }),
-          async (days, priceEther) => {
-            const factoryFresh = await RetailerFactory.deploy(owner.address);
-            await factoryFresh.deployed();
-            const priceWei = ethers.parseEther(priceEther.toFixed(18));
-            const txFresh = await factoryFresh.createSubscriptionPlan(
-              `Plan${days}`,
-              priceWei,
-              days,
-              10,
-              "FuzzPlan",
-              "ipfs://m"
-            );
-            const event = (await txFresh.wait()).events?.find((e: any) => e.event === "PlanCreated");
-            const planAddr = event?.args.adresa;
-            const planFuzz = PlanAbonament.attach(planAddr);
-
-            if (priceWei.isZero()) {
-              await expect(planFuzz.cumparaSubscriptie({ value: priceWei })).to.be.reverted;
-            } else {
-              await expect(planFuzz.cumparaSubscriptie({ value: priceWei })).to.not.be.reverted;
+  it("random valid subscriptions should always succeed", async () => {
+    await fc.assert(
+      fc.asyncProperty(
+        fc.integer({ min: 1, max: 365 }),
+        fc.bigInt({ min: BigInt(1), max: ethers.parseEther("10") }),
+        async (days, priceWei) => {
+          const factoryFresh = await RetailerFactory.deploy(owner.address);
+          await factoryFresh.waitForDeployment();
+          expect(factoryFresh.target).to.properAddress;
+  
+          const tx = await factoryFresh.createSubscriptionPlan(
+            `Plan${days}`,
+            priceWei,
+            days,
+            10,
+            "FuzzPlan",
+            "ipfs://m"
+          );
+          const receipt = await tx.wait();
+            const iface = RetailerFactory.interface;
+          let planAddr: string | null = null;
+  
+          for (const log of receipt.logs) {
+            try {
+              const parsed = iface.parseLog(log);
+              if (parsed.name === "PlanCreated") {
+                planAddr = parsed.args.adresa;
+                break;
+              }
+            } catch (_) {
             }
           }
-        ),
-        { numRuns: 20 }
-      );
-    });
+  
+          if (!planAddr) {
+            throw new Error("PlanCreated event not found in logs");
+          }
+  
+          expect(planAddr).to.properAddress;
+  
+          const planFuzz = PlanAbonament.attach(planAddr);
+          await expect(
+            planFuzz.connect(addr1).cumparaSubscriptie({ value: priceWei })
+          ).to.not.be.reverted;
+        }
+      ),
+      {
+        numRuns: 20,
+        verbose: true,
+      }
+    );
   });
+  
 
   describe("Gas Benchmark", function () {
     it("should measure gas cost for subscription", async function () {
