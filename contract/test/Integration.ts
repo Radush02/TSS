@@ -16,24 +16,23 @@ describe("Integration and Property-based Tests for Subscription Contracts", func
     [owner, addr1, addr2] = await ethers.getSigners();
 
     RetailerFactory = await ethers.getContractFactory("RetailerFactory");
-    factory = await RetailerFactory.deploy(owner.address);
+    factory         = await RetailerFactory.connect(owner).deploy();
     await factory.waitForDeployment();
 
-    await factory.connect(owner).createSubscriptionPlan(
-          "BasicPlan",
-          ethers.parseEther("0.1"),
-          30,
-          initialSupply,
-          "Basic subscription plan",
-          "ipfs://metadata"
-        );
-    const planAddress = await factory.abonamente(0);
+    await factory.createSubscriptionPlan(
+      "BasicPlan",
+      ethers.parseEther("0.1"),
+      30,
+      initialSupply,
+      "Basic subscription plan",
+      "ipfs://metadata"
+    );
+    const planAddress = await factory.abonamente(1);
 
     PlanAbonament = await ethers.getContractFactory("PlanAbonament");
-    AbonamentNFT = await ethers.getContractFactory("AbonamentNFT");
-
+    AbonamentNFT  = await ethers.getContractFactory("AbonamentNFT");
     plan = PlanAbonament.attach(planAddress);
-    nft = AbonamentNFT.attach(await plan.abonamentNFT());
+    nft  = AbonamentNFT.attach(await plan.abonamentNFT());
   });
 
   it("should allow user to subscribe and mint NFT", async function () {
@@ -71,7 +70,7 @@ describe("Integration and Property-based Tests for Subscription Contracts", func
         fc.integer({ min: 1, max: 365 }),
         fc.bigInt({ min: BigInt(1), max: ethers.parseEther("10") }),
         async (days, priceWei) => {
-          const factoryFresh = await RetailerFactory.deploy(owner.address);
+          const factoryFresh = await RetailerFactory.connect(owner).deploy();
           await factoryFresh.waitForDeployment();
           expect(factoryFresh.target).to.properAddress;
   

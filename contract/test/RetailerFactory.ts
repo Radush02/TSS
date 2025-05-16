@@ -8,7 +8,7 @@ describe("RetailerFactory", function () {
     beforeEach(async function () {
       [owner, other] = await ethers.getSigners();
       Factory = await ethers.getContractFactory("RetailerFactory");
-      factory = await Factory.deploy(owner.address);
+      factory = await Factory.connect(owner).deploy();
       await factory.waitForDeployment();
     });
   
@@ -34,13 +34,12 @@ describe("RetailerFactory", function () {
       await expect(
         factory.createSubscriptionPlan("R", 1, 2, 3, "d", metadataURI)
       ).to.emit(factory, "PlanCreated");
-      const addr = await factory.abonamente(0);
+      const addr = await factory.abonamente(1);
       const Plan = await ethers.getContractFactory("PlanAbonament");
       const plan = await Plan.attach(addr) as any;
       expect(await plan.retailer()).to.equal("R");
-      expect(await factory.nextPlanId()).to.equal(1);
+      expect(await factory.nextPlanId()).to.equal(2);
     });
 
-    
   });
   
