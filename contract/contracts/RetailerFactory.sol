@@ -10,8 +10,9 @@ contract RetailerFactory is Ownable {
     
     event PlanCreated(address indexed adresa, string retailer, uint256 pret, uint256 durata, uint256 disponibil, string descriere, string metadataURI);
 
-    constructor(address _initialOwner) Ownable(_initialOwner) {}
-
+    constructor() Ownable(msg.sender) {
+        nextPlanId = 1;
+    }
     function createSubscriptionPlan(
         string memory _retailer,
         uint256 _pret,

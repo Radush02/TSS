@@ -3,7 +3,7 @@
 async function main() {
     const [deployer] = await ethers.getSigners();
 
-    const EventFactory = await ethers.getContractFactory("EventFactory");
+    const EventFactory = await ethers.getContractFactory("RetailerFactory");
     const factory = await EventFactory.deploy();
 
     await factory.waitForDeployment();
